@@ -44,7 +44,7 @@ class DictItem(DictMixin, BaseItem):
 
     def __init__(self, *args, **kwargs):
         self._values = {}
-        if args or kwargs: # avoid creating dict for most common case
+        if args or kwargs:  # avoid creating dict for most common case
             for k, v in dict(*args, **kwargs).iteritems():
                 self[k] = v
 
@@ -97,9 +97,12 @@ class Item(DictItem):
             try:
                 tree = etree.fromstring(data, parser)
                 for child in tree.xpath('//item')[0].iterchildren():
-                    self[child.tag] = child.text.replace('&lt;', '<').replace('&gt;', '>')
+                    if child.text is not None:
+                        self[child.tag] = child.text.replace('&lt;', '<').replace('&gt;', '>')
+                    else:
+                        self[child.tag] = ''
             except Exception,e:
-                print 'error parsing %s:' %data,e
+                print 'error parsing %s:' % data,e
                 return False
         return True
 

@@ -107,7 +107,7 @@ class KRCrawlApp(BaseCrawlApp):
         spd = Topic36krSpider(
             start_urls=start_urls,
             allowed_domains=allowed_domains,
-            maxdept=3,
+            maxdept=1,
             maxkeptnum=300,
             output_file=os.path.join(self.pre_dir, 'topics.xml'),
             pre_dir=self.pre_dir)
@@ -117,7 +117,7 @@ class KRCrawlApp(BaseCrawlApp):
             start_urls=spd._kept_list,
             allowed_domains=allowed_domains,
             maxdept=3,
-            maxkeptnum=1000,
+            maxkeptnum=100,
             delay=0.1,
             output_file=self.base_fname,
             pre_dir=self.pre_dir)
@@ -157,13 +157,13 @@ class STOFCrawlApp(BaseCrawlApp):
 
 if __name__ == "__main__":
     ca = KRCrawlApp(
-        pre_dir='36kr',
+        pre_dir='../data/36kr',
         wordcount_file='wordcount.txt',
         base_fname='articles.xml',
         content_fname='par_articles.xml',
         token_fname='token_articles.xml',
         stp_fname='stop_articles.xml',
-        stop_list='chi_stopword.txt',
+        stop_list='crawler/chi_stopword.txt',
         ContentParser=KRContentParser,
         Tokenizer=KRTokenizer,
         DeStopword=KRDeStopword,
