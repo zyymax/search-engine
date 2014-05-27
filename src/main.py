@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#-*-coding : utf-8-*-
 """
 Created at 2013-05-29
 
@@ -7,7 +6,7 @@ author:	zyy_max
 desc:	main entry of project: SearchEngin
 """
 from crawler.crawler import KRCrawlApp, STOFCrawlApp
-#from search_module.IndexArticles import IndexApp
+from search_module.IndexArticles import IndexApp
 from search_module.KNN import KNNBuilder
 from search_module.KMeans import CluserApp
 from crawler.parsers import KRContentParser, KRTokenizer, KRDeStopword, \
@@ -18,6 +17,7 @@ from pprint import pprint
 if __name__ == "__main__":
     # 36kr
     # crawler application
+    '''
     kr_crawler = KRCrawlApp(
         pre_dir='../data/36kr',
         wordcount_file='wordcount.txt',
@@ -31,13 +31,14 @@ if __name__ == "__main__":
         DeStopword=KRDeStopword,
         )
     kr_crawler.run()
-    exit(1)
+    '''
     # indexer application
     kr_indexer = IndexApp(
         '../data/36kr/stop_articles.xml',
         '../data/36kr/index_all',
         Article)
     kr_indexer.run()
+    exit(1)
 
     # knn application
     kr_kb = KNNBuilder(

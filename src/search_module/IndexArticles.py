@@ -1,12 +1,24 @@
 #!/usr/bin/env python
-#-*- coding : utf-8 -*-
-import sys, os, lucene, threading, time
+import sys
+import os
+import lucene
+from java.io import File
+from org.apache.lucene.analysis.core import SimpleAnalyzer
+from org.apache.lucene.store import SimpleFSDirectory
+from org.apache.lucene.index import IndexWriter, IndexWriterConfig
+from org.apache.lucene.document import Document, Field, NumericDocValuesField
+from org.apache.lucene.analysis.miscellaneous import LimitTokenCountAnalyzer
+from org.apache.lucene.util import Version
+
+import threading
+import time
 from datetime import datetime
 root_path = os.path.abspath('..')
 sys.path.append(root_path)
 from crawler.util.ItemUtils import ItemUtils
 from crawler.items import Article, Question
-    
+
+
 class Ticker(object):
     def __init__(self):
         self.tick = True
@@ -16,6 +28,7 @@ class Ticker(object):
             sys.stdout.write('.')
             sys.stdout.flush()
             time.sleep(1.0)
+
 
 class IndexFiles(object):
     """Usage: python Indexitemdocs <XMLPath> <IndexPath>"""
@@ -27,16 +40,17 @@ class IndexFiles(object):
         ItemClass = kwargs.get('ItemClass')
         if not os.path.exists(storeDir):
             os.mkdir(storeDir)
-        store = lucene.SimpleFSDirectory(lucene.File(storeDir))
-        writer = lucene.IndexWriter(store, analyzer, True,
-                    lucene.IndexWriter.MaxFieldLength.LIMITED)
-        writer.setMaxFieldLength(1048576)
-        #self.indexDocs(xmlpath, writer)
+        store = SimpleFSDirectory(File(storeDir))
+        analyzer = LimitTokenCountAnalyzer(analyzer, 1048576)
+        config = IndexWriterConfig(Version.LUCENE_CURRENT, analyzer)
+        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE)
+        writer = IndexWriter(store, config)
+        # self.indexDocs(xmlpath, writer)
         self.indexXML(xmlpath, writer, ItemClass)
         ticker = Ticker()
-        print 'optimizing index',
+        print 'commit index',
         threading.Thread(target=ticker.run).start()
-        writer.optimize()
+        writer.commit()
         writer.close()
         ticker.tick = False
         print 'done'
@@ -44,25 +58,24 @@ class IndexFiles(object):
     def indexXML(self, xmlpath, writer, ItemClass):
         count = 0
         for itemdoc in ItemUtils(ItemClass=ItemClass)._parse_items(xmlpath):
-            doc = lucene.Document()
+            doc = Document()
             for key in itemdoc:
                 try:
                     if key in ['token_taglist', 'token_content', 'token_title', 'token_author', 'author']:
-                        doc.add(lucene.Field(key, itemdoc[key],
-                                lucene.Field.Store.YES, lucene.Field.Index.ANALYZED,
-                                lucene.Field.TermVector.WITH_POSITIONS_OFFSETS))
+                        doc.add(Field(key, itemdoc[key],
+                                Field.Store.YES, Field.Index.ANALYZED,
+                                Field.TermVector.WITH_POSITIONS_OFFSETS))
                     elif key.endswith('url') or key in ['category', 'path', 'title', 'tag_list', 'content']:
-                        doc.add(lucene.Field(key, itemdoc[key],
-                                lucene.Field.Store.YES, lucene.Field.Index.NO))
+                        doc.add(Field(key, itemdoc[key],
+                                Field.Store.YES, Field.Index.NO))
                     elif key == 'id':
-                        nfield = lucene.NumericField('id')
-                        nfield.setLongValue(long(itemdoc[key]))
-                        doc.add(nfield)
-                except Exception,e:
-                    print e,key,itemdoc['title']
+                        doc.add(NumericDocValuesField('id', long(itemdoc[key])))
+                except Exception, e:
+                    print e, key, itemdoc['title']
             writer.addDocument(doc)
             count += 1
-            print '\radding doc %s:\t%s...' %(count, itemdoc['title'][:5]),
+            print '\radding doc %s:\t%s...' % (count, itemdoc['title'][:5]),
+
 
 class IndexApp(object):
     def __init__(self, xmlpath, indexpath, ItemClass):
@@ -78,7 +91,7 @@ class IndexApp(object):
             IndexFiles(
                 xmlpath=self.xmlpath,
                 storeDir=self.indexpath,
-                analyzer=lucene.SimpleAnalyzer(lucene.Version.LUCENE_CURRENT),
+                analyzer=SimpleAnalyzer(Version.LUCENE_CURRENT),
                 ItemClass=self.ItemClass)
             end = datetime.now()
             print end - start
