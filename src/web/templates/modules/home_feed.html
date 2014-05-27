@@ -1,0 +1,51 @@
+{% for ae in template_values['account_essay'] %}
+<div class="pagedlist_item" tabindex="-1" id="ld_eWY0zV_16552">
+    <div class="feed_item" id="__w2_C5flZRe_item">
+        <div class="mute_item_overlay"
+             id="__w2_hPn5x19_mute_item_overlay"></div>
+        <div class="e_col p1 w4_5" id="__w2_C5flZRe_feed_item">
+            <div class="feed_item_photo">
+                <div id="ld_xy31XV_17948">
+                    <a href="/account/{{ ae.wid }}" id="__w2_pmHyWPm_link">
+                        <img class="profile_photo_img" src="/static/img/image/{{ ae.wid }}.jpeg" width="50"
+                             alt="SlideShare" height="50">
+                    </a>
+                </div>
+            </div>
+            <strong class="feed_item_title">
+                <span class="light_gray normal">
+                <a class="topic_name" href="/account/{{ ae.wid }}" id="__w2_nFkRwrn_link">
+                    <span class="name_text">
+                        <span id="ld_xy31XV_17955">{{ ae.wname }}</span>
+                    </span>
+                </a>
+                    .
+                    <span class="timestamp">
+                        {{ ae.publish_time }}
+                    </span>
+                    .
+                    <span class="timestamp"><a style="color: #999" href="#;" onclick="window.open('http://service.weibo.com/share/share.php?url=http://chuansong.me/n/{{ ae.essay }}&amp;title=【{{ ae.title }}】{{ ae.digest }}&amp;appkey=2919864620&amp;ralateUid=2454002513', '_blank', 'width=550,height=370'); recordOutboundLink(this, 'Share', 'weibo.com');" class="tb">分享</a></span>
+                </span>
+            </strong>
+
+            <div class="home_feed_item_row">
+                <div id="ld_xy31XV_17949">
+                    <div class="feed_item_question">
+                        <h2>
+                            <span id="ld_xy31XV_17954">
+                                <a class="question_link" href="/n/{{ ae.essay }}" id="__w2_H7JrHQZ_link" target="_blank">
+                                    <div class="question_text_icons">
+                                        <span id="ld_pUyMn3_16546"></span>
+                                    </div>
+                                    {{ ae.title }}
+                                </a>
+                            </span>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}
+<div id="hn{{ template_values['lastindex'] }}" style="display: none">{{ template_values['hasnext'] }}</div>

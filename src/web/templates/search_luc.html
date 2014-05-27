@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block head %}
+<title>Beta Search</title>
+{% end %}
+{% block body %}
+<div id="ld_fadXXq_105">
+    <div class=" pmsg_container main wrapper hidden " id="__w2_PMOmhhZ_pmsg_container"></div>
+    <div class=" main wrapper">
+        <div class="search_page contents content main_content fixed_header">
+            <div id="__w2_f8MsdEI_content">
+                <div id="ld_mZESbP_31109">
+                    <div id="ld_mZESbP_31110">
+                        <div class="row query_results">
+                            <div class="row">
+                                <div class="e_col w4_5 results_header_row feed_item">
+								{%if template_values['total'] != 0%}
+								<h1>totally {{ template_values['total'] }} results in {{ template_values['cost_time'] }}s</h1>
+                                {% end %}
+								</div>
+                            </div>
+                            <div class="row">
+                                <div class="e_col w4_5 results_list" id="__w2_Peh4h0Z_results_list">
+                                    <div id="ld_pb7M6s_32121">
+                                        <div id="__w2_x4uJOZh_actionable"></div>
+                                    </div>
+                                    <div tabindex="-1" id="ld_pb7M6s_32122">
+
+                                        {%if template_values['total'] == 0%}
+                                        <br>
+                                        没有找到相关内容
+                                        {%else%}
+                                        <div class="feed_body">
+                                        {% module Template("modules/search_articles.html", template_values=template_values) %}
+                                        {% end %}
+                                        </div>
+                                        <div id="li" style="display: none">{{ template_values['lastindex'] }}</div>
+                                        <div id="af" style="display: none">{{ template_values['addfactor'] }}</div>
+                                        <div>
+                                            <div class="pager_next action_button row" id="search_more_btn" {% if template_values['hasnext'] == 0 %}style="display: none"{% end %}>更多</div>
+                                            <div class="pager_sentinel" id="search_loading" style="display: none">加载中...</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}

@@ -1,0 +1,28 @@
+{% for account in template_values['accounts'] %}
+<div class="pagedlist_item" tabindex="-1" id="ld_jdGSxP_57959">
+    <div class="row" style="padding-top: 10px;">
+        <div id="ld_jdGSxP_57975">
+            <a href="/account/{{ account['wid'] }}" id="__w2_NZZNIsX_link">
+                <img class="profile_photo_img" src="/static/img/image/{{ account.wid }}.jpeg" width="50" alt="{{ account['wname'] }}" height="50">
+            </a>
+        </div>
+        <strong>
+            <a href="/account/{{ account['wid'] }}">
+                <span id="ld_jdGSxP_57976">{{ account['wname'] }}</span>
+            </a>
+            {% if (template_values['page'] == 'verify') %}
+            <a href="/edit/{{ account['wid'] }}">编辑</a>
+            {% end %}
+        </strong>
+
+        <div id="__w2_GeizByc_rating">
+            <div id="ld_jdGSxP_58005">
+            </div>
+        </div>
+        <div class="row hidden p0_5" id="__w2_GeizByc_editor">
+            <div id="__w2_GeizByc_editor_space">&nbsp;</div>
+        </div>
+    </div>
+</div>
+{% end %}
+<div id="hn{{ template_values['lastindex'] }}" style="display: none">{{ template_values['hasnext'] }}</div>

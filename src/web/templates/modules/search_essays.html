@@ -1,0 +1,29 @@
+{% for essay in template_values['essays'] %}
+<div class="pagedlist_item" tabindex="-1">
+    <div>
+        <div class="row feed_item query_result question_query_result ">
+            <div class="e_col w4_5">
+                <div class="title ">
+                    <div>
+                        <a class="question_link" href="{{ essay['link'] }}" target="_blank">{{ essay['title_m'] }}</a>
+                    </div>
+                </div>
+                <div class="row content">
+                    <div class="row">
+                        <span href="#">
+                            <div class="query_result_contents_truncated">
+                                <span>
+                                    <div class="expandable_qtext search_result_snippet truncate_3">
+                                        {{ essay['digest_m'] }}
+                                    </div>
+                                </span>
+                            </div>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% end %}
+<div id="hn{{ template_values['lastindex'] }}" style="display: none">{{ template_values['hasnext'] }}</div>
