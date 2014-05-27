@@ -14,7 +14,7 @@ class Base36krSpider(BaseSpiderV3):
             Base spider for crawling 36kr.com
     """
 
-    def parse_artical(self, cur_url, data):
+    def parse_article(self, cur_url, data):
         # save data
         pathname = self._saveweb(cur_url, data)
         if pathname is None:
@@ -68,31 +68,21 @@ class Base36krSpider(BaseSpiderV3):
         except Exception as e:
             print 'open soup error', e
             return nexturl_dict
-        for tag in soup.find('table', attrs={'class': 'table'}).findAll('a'):
-            if 'href' not in tag:
+        # article urls in current page
+        for h1 in soup.findAll('h1'):
+            a = h1.find('a')
+            if a is None or not re.compile('p/\d+\.html?').search(a['href']):
                 continue
-            next_url = urlparse.urljoin(cur_url, tag['href'])
+            next_url = urlparse.urljoin(cur_url, a['href'])
             # check next_url
             if next_url in self._url_dict:
                 continue
             nexturl_dict[next_url] = 1
-        if not re.search('\?page=', cur_url):
-            # try to build page_url_list
-            pagination = soup.find('div', attrs={'class': 'pagination'})
-            if pagination is not None:
-                # has page toolbar
-                li_list = pagination.findAll('li')
-                try:
-                    max_num = int(li_list[-2].a.text)
-                    for pageno in xrange(2, max_num+1):
-                        nexturl = urlparse.urljoin(
-                            cur_url,
-                            '?page=%s' %
-                            pageno)
-                        # print cur_url, nexturl
-                        nexturl_dict[nexturl] = 1
-                except Exception as e:
-                    print 'error to get max pageno', e
+        # next page url
+        li = soup.find('li', attrs={'class': 'next next_page '})
+        next_url = urlparse.urljoin(cur_url, li.a['href'])
+        if next_url not in self._url_dict:
+            nexturl_dict[next_url] = 1
         return nexturl_dict
 
 
@@ -107,7 +97,7 @@ class Gen36krSpider(Base36krSpider):
         if re.compile('p/\d+\.html?').search(cur_url):
             cur_url = cur_url.split('?')[0].split('#')[0]
             # got artical page
-            if self.parse_artical(cur_url, data):
+            if self.parse_article(cur_url, data):
                 nexturl_dict[cur_url] = 1
             return nexturl_dict
         try:
@@ -143,7 +133,7 @@ class Topic36krSpider(Base36krSpider):
             print 'open soup error', e
             return nexturl_dict
         # add real_url to already crawled url list
-        for div in soup.findAll('div',attrs={'class':'category-topic__title cf'}):
+        for div in soup.findAll('div', attrs={'class': 'category-topic__title cf'}):
             topic = Topic()
             topic['name'] = div.contents[1].span.text
             next_url = urlparse.urljoin(
@@ -167,9 +157,8 @@ class Article36krSpider(Base36krSpider):
         if re.compile('p/\d+\.html?').search(cur_url):
             cur_url = cur_url.split('?')[0].split('#')[0]
             # got artical page
-            if self.parse_artical(cur_url, data):
-                nexturl_dict[cur_url] = 1
-        elif re.compile('topic').search(cur_url):
+            self.parse_article(cur_url, data)
+        elif re.compile('category').search(cur_url):
             # got topic page
             return self.parse_topic(cur_url, data)
         return nexturl_dict
@@ -188,25 +177,23 @@ if __name__ == "__main__":
         output_file='gen_articles.xml')
     spd.start(isBFS=True)
     '''
-    #crawl topics in 36kr
+    # crawl topics in 36kr
     start_urls = ['http://www.36kr.com/explore']
     allowed_domains = ['36kr.com']
     spd = Topic36krSpider(
-                    start_urls=start_urls,
-                    allowed_domains=allowed_domains,
-                    maxdept=2,
-                    maxkeptnum=300,
-                    output_file='topics.xml')
+        start_urls=start_urls,
+        allowed_domains=allowed_domains,
+        maxdept=2,
+        maxkeptnum=300,
+        output_file='topics.xml')
     spd.start(isBFS=True)
-    '''
-    #crawl article with topics in 36kr
-    at_spd = Artical36krSpider(
-                    start_urls=spd._kept_list,
-                    allowed_domains=allowed_domains,
-                    maxdept=3,
-                    maxkeptnum=1000,
-                    delay=0.5,
-                    output_file='articles.xml')
-    #print len(at_spd._item_list)
+    # crawl article with topics in 36kr
+    at_spd = Article36krSpider(
+        start_urls=spd._kept_list,
+        allowed_domains=allowed_domains,
+        maxdept=3,
+        maxkeptnum=6,
+        delay=0.5,
+        output_file='articles.xml')
+    # print len(at_spd._item_list)
     at_spd.start(isBFS=False)
-    '''
