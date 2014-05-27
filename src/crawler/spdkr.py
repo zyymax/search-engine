@@ -143,23 +143,16 @@ class Topic36krSpider(Base36krSpider):
             print 'open soup error', e
             return nexturl_dict
         # add real_url to already crawled url list
-        for tag in soup.findAll('a'):
-            if 'href' not in tag or 'topic' not in tag['href'] \
-                    or any(char in tag['href'] for char in '?#'):
-                continue
+        for div in soup.findAll('div',attrs={'class':'category-topic__title cf'}):
+            topic = Topic()
+            topic['name'] = div.contents[1].span.text
             next_url = urlparse.urljoin(
                 cur_url,
-                tag['href'].split('?')[0]).encode('utf-8')
-            # check next_url
-            if self.bad_domain(next_url) or next_url in self._url_dict:
-                continue
-            topic = Topic()
-            topic['name'] = tag.text
+                div.contents[3].a['href'].encode('utf-8'))
             topic['url'] = next_url
+            # check next_url
             self._item_list.append(topic)
-            nexturl_dict[next_url] = 1
             self._kept_list.append(next_url)
-        # print self._kept_list
         return nexturl_dict
 
 
@@ -183,6 +176,7 @@ class Article36krSpider(Base36krSpider):
 
 
 if __name__ == "__main__":
+    '''
     # generally crawl articles in 36kr
     start_urls = ['http://www.36kr.com']
     allowed_domains = ['36kr.com']
@@ -200,10 +194,11 @@ if __name__ == "__main__":
     spd = Topic36krSpider(
                     start_urls=start_urls,
                     allowed_domains=allowed_domains,
-                    maxdept=3,
+                    maxdept=2,
                     maxkeptnum=300,
                     output_file='topics.xml')
     spd.start(isBFS=True)
+    '''
     #crawl article with topics in 36kr
     at_spd = Artical36krSpider(
                     start_urls=spd._kept_list,

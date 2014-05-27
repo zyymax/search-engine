@@ -8,6 +8,7 @@ import time
 import re
 from collections import deque
 import Queue
+from Queue import Empty
 import threading
 
 
@@ -56,6 +57,7 @@ class BaseSpiderV2(object):
         self._crawled_dict = {}
         self._item_list = []
         self._kept_list = []
+        self._subgottastop = False
         self.initialize(**kwargs)
 
     def initialize(self, **kwargs):
@@ -65,11 +67,7 @@ class BaseSpiderV2(object):
     def gottastop(self):
         return len(
             self._crawled_dict) > self._maxnum or len(
-            self._kept_list) >= self._maxkeptnum or self.subgottastop()
-
-    def subgottastop(self):
-        # extra stop condition for subclasses
-        return False
+            self._kept_list) >= self._maxkeptnum or self._subgottastop
 
     def bad_domain(self, next_url):
         host = urlparse.urlparse(next_url).netloc
@@ -151,7 +149,7 @@ class BaseSpiderV2(object):
             in_str = ins.read()
             if format == 'TXT':
                 pass
-                #item = Item()  # which Item is used???
+                # item = Item()  # which Item is used???
 
     def on_close(self):
         if self.output_file is None:
@@ -205,6 +203,7 @@ class BaseSpiderV3(BaseSpiderV2):
         self._kept_list = []
         # to keep threading pool
         self._thread_pool = []
+        self._subgottastop = False
         self.initialize(**kwargs)
 
     def start(self, isBFS=True, maxQueSize=10000, threadNum=5):
@@ -237,7 +236,11 @@ class BaseSpiderV3(BaseSpiderV2):
 
     def openurl_work(self):
         while not self.gottastop():
-            cur_url, cur_dept = self.url_que.get()
+            try:
+                cur_url, cur_dept = self.url_que.get(timeout=3)
+            except Empty, e:
+                print 'Exiting:\tno available url in queue...'
+                break
             try:
                 response = urlopen(cur_url, None, 10)
                 data = response.read()
@@ -261,11 +264,15 @@ class BaseSpiderV3(BaseSpiderV2):
                 url_que: deQueue==>BFS, deStack==>DFS
         """
         while True:
-            real_url, cur_dept, data = self.data_que.get()
-            got_dict = self.parse_nexturl_list(real_url, data)
-            if self.gottastop():
+            try:
+                real_url, cur_dept, data = self.data_que.get(timeout=3)
+                got_dict = self.parse_nexturl_list(real_url, data)
+                if self.gottastop():
+                    break
+                self._url_dict.update(got_dict)
+                if cur_dept < self._maxdept-1:
+                    for next_url in got_dict.keys():
+                        self.url_que.put((next_url, cur_dept+1))
+            except Empty, e:
+                print 'Exiting:\tno available data in queue...'
                 break
-            self._url_dict.update(got_dict)
-            if cur_dept < self._maxdept-1:
-                for next_url in got_dict.keys():
-                    self.url_que.put((next_url, cur_dept+1))

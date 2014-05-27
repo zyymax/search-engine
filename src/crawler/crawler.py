@@ -102,7 +102,6 @@ class KRCrawlApp(BaseCrawlApp):
             crawling
         """
         # crawl topics in 36kr
-        import pdb; pdb.set_trace()  # XXX BREAKPOINT
         start_urls = ['http://www.36kr.com/explore']
         allowed_domains = ['36kr.com']
         spd = Topic36krSpider(
@@ -112,7 +111,6 @@ class KRCrawlApp(BaseCrawlApp):
             maxkeptnum=300,
             output_file=os.path.join(self.pre_dir, 'topics.xml'),
             pre_dir=self.pre_dir)
-        import pdb; pdb.set_trace()  # XXX BREAKPOINT
         spd.start(isBFS=True)
         # crawl article with topics in 36kr
         at_spd = Article36krSpider(
