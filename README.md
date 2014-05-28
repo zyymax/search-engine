@@ -8,10 +8,13 @@ TODO
     >>> mkdir ../data
     >>> python main.py
 
-2.Web Search:
+2.Start Web Server:
 
     >>> cd src
     >>> python web/web.py
+
+3.Search by Browser:
+type http://localhost:8080 in any browser
     
 Modules
 ------
@@ -40,23 +43,27 @@ light-weight web server by Tornado
 
 Dependence
 ----------
-Crawler:  BeautifulSoup, lxml, scrapy, stemming
+Crawler:  BeautifulSoup, jieba, stemming, lxml, scrapy
 
-Indexer:  PyLucene
+Indexer and Searcher:  PyLucene
 
-Web Server:  Tornado
+Web Server:  tornado
 
 Setup Dep
 ---------
-1.BeautifulSoup
+1.BeautifulSoup, jieba, stemming, lxml, scrapy, tornado
 
     >>> sudo pip install BeautifulSoup
-
-2.stemming
-
+    >>> sudo pip install jieba
     >>> sudo pip install stemming
+    >>> sudo pip install lxml
+    # OR on Ubuntu
+    >>> sudo apt-get install python-lxml
+    >>> sudo pip install scrapy
+    >>> sudo pip install tornado
+    
 
-3.PyLucene
+2.PyLucene
 Download PyLucene
 
     >>> wget http://mirror.bit.edu.cn/apache/lucene/pylucene/pylucene-4.8.0-1-src.tar.gz
@@ -82,17 +89,10 @@ Install Ant
 
     >>> sudo apt-get install ant
     
-To install PyLucene, you need to modify Path2Python, Path2Java and Path2Ant in "Makefile"
+To install PyLucene, you need to set PREFIX-PYTHON, PYTHON, JAVA-HOME, ANT, JCC and NUM_FILES in "Makefile"
 
 After that:
 
     >>> cd pylucene-4.8.0-1
     >>> make
     >>> sudo make install
-
-
-
-
-
-
-
