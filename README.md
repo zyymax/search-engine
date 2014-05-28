@@ -6,7 +6,7 @@ TODO
 
     >>> cd src
     >>> mkdir ../data
-    >>> ./main.py
+    >>> python main.py
 
 2.Web Search:
 
@@ -45,4 +45,54 @@ Crawler:  BeautifulSoup, lxml, scrapy, stemming
 Indexer:  PyLucene
 
 Web Server:  Tornado
+
+Setup Dep
+---------
+1.BeautifulSoup
+
+    >>> sudo pip install BeautifulSoup
+
+2.stemming
+
+    >>> sudo pip install stemming
+
+3.PyLucene
+Download PyLucene
+
+    >>> wget http://mirror.bit.edu.cn/apache/lucene/pylucene/pylucene-4.8.0-1-src.tar.gz
+    >>> tar zxvf pylucene-4.8.0-1-src.tar.gz
+    >>> cd pylucene-4.8.0-1/jcc
+
+Modify JDK_PATH
+
+    >>> sed -i "s#/usr/lib/jvm/java-7-openjdk-amd64#$JAVA_HOME#g" setup.py
+
+[Warning] before you install JCC
+
+$JAVA_HOME/bin need to be in $PATH of root OR you need to add these two lines:
+
+    >>> sed -i "s#'javac'#'$JAVA_HOME/bin/javac'#g" setup.py
+    >>> sed -i "s#\['javadoc'\]#\['$JAVA_HOME/bin/javadoc'\]#g" setup.py
+
+Install JCC
+
+    >>> sudo python setup.py install
+
+Install Ant
+
+    >>> sudo apt-get install ant
+    
+To install PyLucene, you need to modify Path2Python, Path2Java and Path2Ant in "Makefile"
+
+After that:
+
+    >>> cd pylucene-4.8.0-1
+    >>> make
+    >>> sudo make install
+
+
+
+
+
+
 
