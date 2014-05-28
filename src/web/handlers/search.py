@@ -9,8 +9,9 @@ if not root_path in sys.path:
 from search_module.Searcher import ArticleSearcher
 from util.common import permit_read_status,search_accounts_number,search_essays_number
 
-kr_searcher = ArticleSearcher('../36kr/index_all')
-stof_searcher = ArticleSearcher('../stackoverflow/index_all')
+kr_searcher = ArticleSearcher('../data/36kr/index_all')
+# stof_searcher = ArticleSearcher('../data/stackoverflow/index_all')
+stof_searcher = ArticleSearcher('../data/36kr/index_all')
 class SearchLucHandler(BaseHandler):
     def get(self):
         template_values = {}

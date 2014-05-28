@@ -17,7 +17,6 @@ from pprint import pprint
 if __name__ == "__main__":
     # 36kr
     # crawler application
-    '''
     kr_crawler = KRCrawlApp(
         pre_dir='../data/36kr',
         wordcount_file='wordcount.txt',
@@ -31,14 +30,12 @@ if __name__ == "__main__":
         DeStopword=KRDeStopword,
         )
     kr_crawler.run()
-    '''
     # indexer application
     kr_indexer = IndexApp(
         '../data/36kr/stop_articles.xml',
         '../data/36kr/index_all',
         Article)
     kr_indexer.run()
-    exit(1)
 
     # knn application
     kr_kb = KNNBuilder(
@@ -52,12 +49,13 @@ if __name__ == "__main__":
         df_path='../data/36kr/df_show.txt',
         k=1,
         )
-    # kr_kb.run()
+    kr_kb.run()
 
     # KMeans cluster application
-    kr_cluster = CluserApp('../data/36kr/vectors.txt', '36kr/cluster')
+    kr_cluster = CluserApp('../data/36kr/vectors.txt', '../data/36kr/cluster')
     kr_cluster.run()
 
+    '''
     # stackoverflow
     stof_crawler = STOFCrawlApp(
         pre_dir='../data/stackoverflow',
@@ -96,3 +94,4 @@ if __name__ == "__main__":
         '../data/stackoverflow/vectors.txt',
         '../data/stackoverflow/cluster')
     stof_cluster.run()
+    '''
