@@ -2,16 +2,20 @@
 from base import BaseHandler
 import tornado.web
 from datetime import datetime
-import jieba, os, sys
+import jieba
+import os
+import sys
 root_path = os.path.abspath('..')
-if not root_path in sys.path:
+if root_path not in sys.path:
     sys.path.append(root_path)
 from search_module.Searcher import ArticleSearcher
-from util.common import permit_read_status,search_accounts_number,search_essays_number
+from util.common import permit_read_status, \
+    search_accounts_number, search_essays_number
 
 kr_searcher = ArticleSearcher('../data/36kr/index_all')
-# stof_searcher = ArticleSearcher('../data/stackoverflow/index_all')
-stof_searcher = ArticleSearcher('../data/36kr/index_all')
+stof_searcher = ArticleSearcher('../data/stackoverflow/index_all')
+
+
 class SearchLucHandler(BaseHandler):
     def get(self):
         template_values = {}
@@ -45,7 +49,7 @@ class SearchLucHandler(BaseHandler):
             template_values['lastindex'] = search_accounts_number
             template_values['addfactor'] = search_accounts_number
             template_values['total'] = total_count
-            template_values['articles'] = articles#[:search_accounts_number]
+            template_values['articles'] = articles  # [:search_accounts_number]
             template_values['query'] = query
             template_values['field'] = field
             template_values['domain'] = domain

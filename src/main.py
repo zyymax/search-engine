@@ -55,7 +55,6 @@ if __name__ == "__main__":
     kr_cluster = CluserApp('../data/36kr/vectors.txt', '../data/36kr/cluster')
     kr_cluster.run()
 
-    '''
     # stackoverflow
     stof_crawler = STOFCrawlApp(
         pre_dir='../data/stackoverflow',
@@ -69,13 +68,13 @@ if __name__ == "__main__":
         Tokenizer=STOFTokenizer,
         DeStopword=STOFDeStopword,
         )
-    # stof_crawler.run()
+    stof_crawler.run()
 
     stof_indexer = IndexApp(
         '../data/stackoverflow/stop_questions.xml',
         '../data/stackoverflow/index_all',
         Question)
-    # stof_indexer.run()
+    stof_indexer.run()
 
     stof_kb = KNNBuilder(
         ItemClass=Question,
@@ -88,10 +87,9 @@ if __name__ == "__main__":
         df_path='../data/stackoverflow/df_show.txt',
         k=1,
         )
-    # stof_kb.run()
+    stof_kb.run()
 
     stof_cluster = CluserApp(
         '../data/stackoverflow/vectors.txt',
         '../data/stackoverflow/cluster')
     stof_cluster.run()
-    '''

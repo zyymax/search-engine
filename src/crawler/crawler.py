@@ -147,7 +147,7 @@ class STOFCrawlApp(BaseCrawlApp):
             start_urls=spd._kept_list,
             allowed_domains=allowed_domains,
             maxdept=3,
-            maxkeptnum=1000,
+            maxkeptnum=100,
             delay=0.1,
             output_file=self.base_fname,
             pre_dir=self.pre_dir,
@@ -168,17 +168,17 @@ if __name__ == "__main__":
         Tokenizer=KRTokenizer,
         DeStopword=KRDeStopword,
         )
-    ca.run()
-    # stof_crawler = STOFCrawlApp(
-    #         pre_dir = 'stackoverflow',
-    #         wordcount_file = 'wordcount.txt',
-    #         base_fname = 'questions.xml',
-    #         content_fname = 'par_questions.xml',
-    #         token_fname = 'token_questions.xml',
-    #         stp_fname = 'stop_questions.xml',
-    #         stop_list = 'eng_stopword.txt',
-    #         ContentParser = STOFContentParser,
-    #         Tokenizer = STOFTokenizer,
-    #         DeStopword = STOFDeStopword,
-    #     )
-    # stof_crawler.run()
+    # ca.run()
+    stof_crawler = STOFCrawlApp(
+        pre_dir='../data/stackoverflow',
+        wordcount_file='wordcount.txt',
+        base_fname='questions.xml',
+        content_fname='par_questions.xml',
+        token_fname='token_questions.xml',
+        stp_fname='stop_questions.xml',
+        stop_list='crawler/eng_stopword.txt',
+        ContentParser=STOFContentParser,
+        Tokenizer=STOFTokenizer,
+        DeStopword=STOFDeStopword,
+    )
+    stof_crawler.run()
