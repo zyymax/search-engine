@@ -6,8 +6,26 @@ data-file:
 src-file:
   util/
     item.py:      Item of Scrapy, implements fromstring & tostring methods
+    
     ItemUtils.py  Util class to save and load items (TXT/XML)
+    
     spider.py:    Base Spider class, implements threading and basic BFS/DFS-based schedule
+    
     tokenizer.py: Base Tokenizer class, subclasses: WhitespaceTokenizer, PorterStemmerTokenizer
-                    and Jieba*Tokenizer
-  spdkr.py: sub-class 
+                  and Jieba*Tokenizer
+                    
+  spdkr.py:   extends BaseSpider, crawl docs in 36kr.com
+  
+  spdso.py:   extends BaseSpider, crawl questions in stackoverflow.com
+  
+  items.py:   define items that need to be crawled, Article and Question
+  
+  parsers.py: BaseFilter to filter fields of Item
+              BaseDeStopword to delete stopwords
+              KRContentParser & KRTokenizer -> KRBaseFilter -> BaseFilter
+              KRDeStopword -> BaseFilter & BaseDeStopword
+              STOFContentParser & STOFTokenizer -> STOFBaseFilter -> BaseFilter
+              STOFDeStopword -> BaseFilter & BaseDeStopword
+              
+  crawler.py: BaseCrawlApp to determine the process of crawl, parse content, token and deStopword
+              KRCrawlApp & STOFCrawlApp -> BaseCrawlApp
