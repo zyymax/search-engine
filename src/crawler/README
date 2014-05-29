@@ -1,0 +1,13 @@
+[Files]
+
+data-file:
+  *stopword*.txt: stopword list for preprocess
+  
+src-file:
+  util/
+    item.py:      Item of Scrapy, implements fromstring & tostring methods
+    ItemUtils.py  Util class to save and load items (TXT/XML)
+    spider.py:    Base Spider class, implements threading and basic BFS/DFS-based schedule
+    tokenizer.py: Base Tokenizer class, subclasses: WhitespaceTokenizer, PorterStemmerTokenizer
+                    and Jieba*Tokenizer
+  spdkr.py: sub-class 
