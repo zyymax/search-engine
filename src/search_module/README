@@ -1,0 +1,9 @@
+[FILES]
+
+IndexArticles.py: index items in XML file
+
+Searcher.py:      search with index built by IndexArticles.py
+
+Kmeans.py:        K-Means clustering
+
+KNN.py:           to find K-nearest neighbours of each document
