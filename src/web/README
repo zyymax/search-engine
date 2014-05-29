@@ -1,0 +1,17 @@
+[FILES]
+
+templates/
+  *.html: mixed with python and html, shown on web
+
+handlers/
+  search.py:  search with Searchers in search_module/Searcher.py
+  
+  other *.py: deal with requests defined in web.py
+
+statics/
+  *:    css,js,img,ico and other resources
+  
+utils/
+  common.py:  global variables
+
+web.py: configure and launch web server
