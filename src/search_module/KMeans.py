@@ -4,11 +4,16 @@ Created at 2013-05-30
 author: zyy_max
 desc:   used to cluster with KMeansClustering Algorithm
 """
-import random, time, math, os
+import random
+import time
+import math
+import os
 from collections import defaultdict
 from pprint import pprint
 from datetime import datetime
 from copy import deepcopy
+
+
 class KMeansClustering(object):
     """
         input: dictionary of vectors:{docid:{index:float}},...}
@@ -56,7 +61,7 @@ class KMeansClustering(object):
         with open(codebook_file, 'w') as out:
             for kid in self.kernal_dict.keys():
                 for idx, vid in enumerate(self.code_book[kid]):
-                    out.write('KernalID:%s\t%d/%d\t' % (kid, idx+1,len(self.code_book[kid])))
+                    out.write('KernalID:%s\t%d/%d\t' % (kid, idx+1, len(self.code_book[kid])))
                     docid = self.id_docid_list[vid]
                     score = self.cos_dist(self.kernal_dict[kid], self.vector_list[vid])
                     out.write('DocID:%s\tDist:%.3f' % (docid, score))
@@ -72,7 +77,7 @@ class KMeansClustering(object):
             code_book = self.get_codebook(kernal_dict)
             pre_kernal_dict = deepcopy(kernal_dict)
             kernal_dict = self.get_kernaldict(code_book)
-            print 'round no.%s\tcost:%ss' % (round_no, (datetime.now()-start).total_seconds()),[(kid, len(vids)) for kid, vids in code_book.items()]
+            print 'round no.%s\tcost:%ss' % (round_no, (datetime.now()-start).total_seconds()), [(kid, len(vids)) for kid, vids in code_book.items()]
             if self.gottastop(kernal_dict, pre_kernal_dict):
                 break
         self.kernal_dict = kernal_dict
@@ -120,7 +125,7 @@ class KMeansClustering(object):
         for i in xrange(count):
             idx = random.randint(i, size-1)
             template[i], template[idx] = template[idx], template[i]
-        print 'random seed:',template[:count]
+        print 'random seed:', template[:count]
         kernal_dict = {}
         for idx, vid in enumerate(template[:count]):
             kernal_dict[idx] = self.vector_list[vid]
@@ -141,6 +146,7 @@ class KMeansClustering(object):
             if pos in pos_vec_2:
                 score = score + pos_vec_1[pos] * pos_vec_2[pos]
         return score
+
 
 class CluserApp(object):
     def __init__(self, vector_path, cluster_root):
@@ -171,8 +177,8 @@ class CluserApp(object):
         kmc.getcluster(10)
         kmc.save(self.cluster_root)
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     ca = CluserApp('../stackoverflow/vectors.txt', '../stackoverflow/cluster')
     ca.run()
-
 
