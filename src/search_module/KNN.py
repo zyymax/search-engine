@@ -1,4 +1,4 @@
-#-*-coding : utf-8 -*-
+# -*-coding : utf-8 -*-
 """
 Created at 2013-05-27
 
@@ -7,12 +7,16 @@ desc:   used to find K-nearest neighbours of each document
 """
 from collections import defaultdict
 from pprint import pprint
-import os, sys, math
+import os
+import sys
+import math
+import heapq
 root_path = os.path.abspath('..')
-if not root_path in sys.path:
+if root_path not in sys.path:
     sys.path.append(root_path)
 from crawler.util.ItemUtils import ItemUtils
 from crawler.items import Article, Question, BaseItem
+
 
 class KNNBuilder(object):
     def __init__(self, **kwargs):
@@ -28,14 +32,14 @@ class KNNBuilder(object):
         self.df_path = kwargs.get('df_path', None)
         if self.knn_show is not None:
             self.k = kwargs.get('k', 3)
-    
+
     def prepare(self):
         print 'preparing idf_list & vec_per_doc...'
         self.df_dict = self.build_df_dict(self.field)
         df_sum = sum(self.df_dict.values())
         self.df_list = self.sort_dict_into_list(self.df_dict, reverse=False)
         self.idf_list = [(math.log10(df_sum/count), word) for count, word in self.df_list]
-        print 'totally',len(self.df_dict),'words found'
+        print 'totally', len(self.df_dict), 'words found'
         # pprint(self.idf_list[:10])
         vec_list = []
         id_count = 0
@@ -54,58 +58,67 @@ class KNNBuilder(object):
                     vector[idx] = vector[idx] / total
                     pos_vec[idx] = vector[idx]
             vec_list.append(pos_vec)
-            article['vector'] = ','.join(map(lambda x: '%.3f' % x if x!=0 else '0', vector))
+            article['vector'] = ','.join(map(lambda x: '%.3f' % x if x != 0 else '0', vector))
+            print '%s%% vectors loaded\r' % (id_count*100.0/len(self.articles),),
+        print ''
         self.docid_id_dict = docid_id_dict
         self.id_docid_list = id_docid_list
         self.vec_list = vec_list
-        
+
     def buildKNN(self):
         print 'building knn...'
         size = len(self.vec_list)
-        knn_dict = {}
+        matrix_list = []
+        count = 0
         for id1 in xrange(size):
-            knn_dict[id1] = {}
+            matrix_list.append([])
             for id2 in xrange(size):
                 if id1 == id2:
-                    continue
-                if id2 in knn_dict and id1 in knn_dict[id2]:
-                    knn_dict[id1][id2] = knn_dict[id2][id1]
+                    matrix_list[id1].append(0)
                 else:
-                    knn_dict[id1][id2] = self.cos_dist(self.vec_list[id1], self.vec_list[id2])
+                    score = self.cos_dist(self.vec_list[id1], self.vec_list[id2])
+                    matrix_list[id1].append(score)
+            count += 1
+            print '%s%% articles finished\r' % (count*100.0/size,),
+        print ''
+        del self.vec_list
         knn_list = []
-        for idx in xrange(size):
-            knn_list.append(list(self.sort_dict_into_list(knn_dict[idx], reverse=True)))
+        count = 0
+        for idx in xrange(len(matrix_list)):
+            val_id_tuples = {(value, tid) for tid, value in enumerate(matrix_list[idx])}
+            l = heapq.nlargest(100, val_id_tuples)
+            knn_list.append(l)
+            del val_id_tuples
+            count += 1
+            print '%s%% knn_lists sorted\r' % (count*100.0/size,),
+        print ''
         self.knn_list = knn_list
+        self.matrix_list = matrix_list
 
     def saveKNN(self, ItemClass):
         print 'saving necessary data...'
         if self.vector_path is not None:
             # saving vector_path
-            ItemUtils(ItemClass=ItemClass)._save(self.articles, self.vector_path, field = ['id', 'vector'])
+            ItemUtils(ItemClass=ItemClass)._save(self.articles, self.vector_path, field=['id', 'vector'])
         if self.knn_path is not None:
             # saving knn_path
             for article in self.articles:
                 docid = article['id']
                 article['knn_list'] = ','.join(['%.5f/%s' % (score, self.id_docid_list[idx]) for score, idx in self.knn_list[self.docid_id_dict[docid]]])
-            ItemUtils(ItemClass=ItemClass)._save(self.articles, self.knn_path, field = ['id', 'knn_list'])
+            ItemUtils(ItemClass=ItemClass)._save(self.articles, self.knn_path, field=['id', 'knn_list'])
         if self.naive_matrix is not None:
             # saving naive_matrix
-            naive_knn_dict = []
-            size = len(self.knn_list)
-            for id1 in xrange(size):
-                naive_knn_dict.append({})
-                for score, id2 in self.knn_list[id1]:
-                    naive_knn_dict[id1][id2] = score
             line_list = []
+            size = len(self.matrix_list)
             for i in xrange(size):
-                line = ''
+                line = []
                 for j in xrange(size):
-                    line += '[%s][%s]:' % (i, j)
+                    line.append('[%s][%s]:' % (i, j))
                     if i == j:
-                        line += '1 '
+                        line.append('1')
                     else:
-                        line += '%.5f ' % naive_knn_dict[i][j]
-                line_list.append(line[:-1]+'\n')            
+                        line.append('%.5f' % self.matrix_list[i][j])
+                line_list.append(' '.join(line)+'\n')
             open(self.naive_matrix, 'w').writelines(line_list)
         if self.knn_show is not None:
             # saving knn_show
@@ -123,7 +136,7 @@ class KNNBuilder(object):
             # print type(line_list), line_list[0]
             open(self.knn_show, 'w').writelines(line_list)
         if self.df_path is not None:
-            #saving df path
+            # saving df path
             line_list = []
             for i in xrange(len(self.df_list)):
                 line_list.append('%s\t%s\t%.2f\n' % (self.df_list[i][1].encode('utf-8'), self.df_list[i][0], self.idf_list[i][0]))
@@ -134,8 +147,6 @@ class KNNBuilder(object):
         self.prepare()
         self.buildKNN()
         self.saveKNN(self.ItemClass)
-
-
 
     def cos_dist(self, pos_vec_1, pos_vec_2):
         score = 0
@@ -173,30 +184,30 @@ class KNNBuilder(object):
 
     def sort_dict_into_list(self, wc_dict, reverse=True):
         wc_list = [(count, word) for word, count in wc_dict.items()]
-        return sorted(wc_list, cmp=lambda x,y: cmp(x[0], y[0]), reverse=reverse)
+        return sorted(wc_list, cmp=lambda x, y: cmp(x[0], y[0]), reverse=reverse)
 
-if __name__=="__main__":
+if __name__ == "__main__":
     kb = KNNBuilder(
-            ItemClass=Article,
-            xmlpath='../36kr/stop_articles.xml',
-            field='token_content',
-            vector_path='../36kr/vectors.txt',
-            knn_path='../36kr/knn_lists.txt',
-            naive_matrix='../36kr/naive_matrix.txt',
-            knn_show='../36kr/knn_show.txt',
-            df_path='../36kr/df_show.txt',
-            k=3,
-        )
+        ItemClass=Article,
+        xmlpath='../36kr/stop_articles.xml',
+        field='token_content',
+        vector_path='../36kr/vectors.txt',
+        knn_path='../36kr/knn_lists.txt',
+        naive_matrix='../36kr/naive_matrix.txt',
+        knn_show='../36kr/knn_show.txt',
+        df_path='../36kr/df_show.txt',
+        k=3,
+    )
     kb.run()
     st_kb = KNNBuilder(
-            ItemClass=Question,
-            xmlpath='../stackoverflow/stop_questions.xml',
-            field='token_content',
-            vector_path='../stackoverflow/vectors.txt',
-            knn_path='../stackoverflow/knn_lists.txt',
-            naive_matrix='../stackoverflow/naive_matrix.txt',
-            knn_show='../stackoverflow/knn_show.txt',
-            df_path='../stackoverflow/df_show.txt',
-            k=3,
-        )
+        ItemClass=Question,
+        xmlpath='../stackoverflow/stop_questions.xml',
+        field='token_content',
+        vector_path='../stackoverflow/vectors.txt',
+        knn_path='../stackoverflow/knn_lists.txt',
+        naive_matrix='../stackoverflow/naive_matrix.txt',
+        knn_show='../stackoverflow/knn_show.txt',
+        df_path='../stackoverflow/df_show.txt',
+        k=3,
+    )
     st_kb.run()
